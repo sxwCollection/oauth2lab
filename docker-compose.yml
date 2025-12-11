@@ -1,0 +1,47 @@
+services:
+  kcdb:
+    image: postgres:17.7
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - ./initdbs.sql:/docker-entrypoint-initdb.d/initdbs.sql
+      - ./dbvol/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  # ---------------------------
+  # Keycloak 1
+  # ---------------------------
+  kc1:
+    image: quay.io/keycloak/keycloak:26.4.7
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://kcdb:5432/kc1
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "9500:8080"
+    depends_on:
+      - kcdb
+  # ---------------------------
+  # Keycloak 2
+  # ---------------------------
+  kc2:
+    image: quay.io/keycloak/keycloak:26.4.7
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://kcdb:5432/kc2
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "9501:8080"
+    depends_on:
+      - kcdb
